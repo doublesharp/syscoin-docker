@@ -21,14 +21,17 @@ ENV PATH=${PATH}:/syscoin/bin
 
 COPY --from=build-stage /syscoin /syscoin
 
-RUN mkdir -p /root/.syscoin
+COPY entrypoint.sh /usr/local/bin/
+COPY syscoin.conf /syscoin/
 
-COPY syscoin.conf /root/.syscoin/
+RUN mkdir -p /root/.syscoin
 
 WORKDIR /root
 
 VOLUME [ "/root/.syscoin" ]
 
 EXPOSE 8369 30303
+
+ENTRYPOINT [ "entrypoint.sh" ]
 
 CMD [ "syscoind" ]

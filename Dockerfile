@@ -1,30 +1,25 @@
 FROM ubuntu:bionic AS build-stage
 
-ARG SYSCOIN_VERSION=v4.2.0
+ARG SYSCOIN_VERSION=4.2.0
+ARG GZ_FILE=syscoin-${SYSCOIN_VERSION}-x86_64-linux-gnu.tar.gz
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN set -xe; \
-  apt-get update; apt-get install -yq \
-  # build tools
-  automake autotools-dev bsdmainutils build-essential cmake git libtool pkg-config python3 software-properties-common \
-  # libs
-  libboost-chrono-dev libboost-filesystem-dev libboost-system-dev libboost-test-dev libboost-thread-dev libcurl4-openssl-dev libevent-dev libgmp3-dev libssl-dev; \
-  # libdb4.8
-  add-apt-repository -y ppa:bitcoin/bitcoin; \
-  apt-get update; apt-get install -yq \
-  libdb4.8-dev libdb4.8++-dev; \
-  # syscoin
-  git clone --single-branch --branch ${SYSCOIN_VERSION} https://github.com/syscoin/syscoin.git; cd syscoin; \
-  ./autogen.sh; ./configure --disable-tests --prefix=/usr/local; \
-  make -j$(nproc) src/syscoind src/syscoin-cli; make install src/syscoind src/syscoin-cli;
+  apt-get update; \
+  apt-get install -yq ca-certificates gpg wget; \
+  wget https://github.com/syscoin/syscoin/releases/download/v${SYSCOIN_VERSION}/SHA256SUMS.asc; \
+  wget https://github.com/syscoin/syscoin/releases/download/v${SYSCOIN_VERSION}/${GZ_FILE}; \
+  gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 79D00BAC68B56D422F945A8F8E3A8F3247DBCBBF; \
+  gpg --verify SHA256SUMS.asc; \
+  sha256sum --ignore-missing -c SHA256SUMS.asc; \
+  mkdir -p /syscoin; tar -xzvf ${GZ_FILE} -C /syscoin --strip-components 1; rm ${GZ_FILE};
 
 FROM ubuntu:bionic
 
-COPY --from=build-stage /lib/* /lib/
-COPY --from=build-stage /usr/lib/* /usr/lib/
-COPY --from=build-stage /usr/local/lib/* /usr/local/lib/
-COPY --from=build-stage /usr/local/bin/syscoin* /usr/local/bin/
+ENV PATH=${PATH}:/syscoin/bin
+
+COPY --from=build-stage /syscoin /syscoin
 
 RUN mkdir -p /root/.syscoin
 

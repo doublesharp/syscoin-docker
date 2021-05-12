@@ -2,7 +2,9 @@ version: '3.4'
 
 services:
   syscoin:
-    image: doublesharp/syscoin:latest
+    image: 'syscoin-dev'
+    build:
+      context: .
     restart: always
     ports:
       - '8369:8369'

@@ -1,6 +1,6 @@
 FROM ubuntu:bionic AS build-stage
 
-ARG SYSCOIN_VERSION=4.2.1
+ARG SYSCOIN_VERSION=4.2.2
 ARG GZ_FILE=syscoin-${SYSCOIN_VERSION}-x86_64-linux-gnu.tar.gz
 
 ARG DEBIAN_FRONTEND=noninteractive

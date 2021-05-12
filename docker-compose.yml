@@ -10,4 +10,4 @@ services:
       - '8369:8369'
       - '30303:30303'
     volumes:
-      - ./syscoin:/root/.syscoin
+      - ./syscoin:/syscoin/.syscoin

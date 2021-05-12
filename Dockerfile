@@ -24,11 +24,14 @@ COPY --from=build-stage /syscoin /syscoin
 COPY entrypoint.sh /usr/local/bin/
 COPY syscoin.conf /syscoin/
 
-RUN mkdir -p /root/.syscoin
+RUN useradd -ms /bin/bash syscoin
+USER syscoin
 
-WORKDIR /root
+RUN mkdir -p /home/syscoin/.syscoin
 
-VOLUME [ "/root/.syscoin" ]
+WORKDIR /home/syscoin
+
+VOLUME [ "/home/syscoin/.syscoin" ]
 
 EXPOSE 8369 30303
 
